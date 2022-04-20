@@ -280,6 +280,7 @@ export class AddonProviderFactory {
     const state = await this._wowupService.getAddonProviderState(provider.name);
     if (state) {
       provider.enabled = state.enabled;
+      this._addonProviderChangeSrc.next(provider)
     }
   };
 }

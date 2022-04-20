@@ -27,7 +27,7 @@ export class SessionService {
   private readonly _myAddonsColumnsSrc = new BehaviorSubject<ColumnState[]>([]);
   private readonly _targetFileInstallCompleteSrc = new Subject<boolean>();
   private readonly _myAddonsCompactVersionSrc = new BehaviorSubject<boolean>(false);
-  private readonly _adSpaceSrc = new BehaviorSubject<boolean>(false);
+  public readonly _adSpaceSrc = new BehaviorSubject<boolean>(false);
   private readonly _enableControlsSrc = new BehaviorSubject<boolean>(false);
   private readonly _getAddonsColumnsSrc = new Subject<ColumnState>();
   private readonly _currentThemeSrc = new BehaviorSubject<string>("default-theme");
