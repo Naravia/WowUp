@@ -135,8 +135,11 @@ export class VerticalTabsComponent implements OnInit, OnDestroy {
     private _preferences: PreferenceStorageService
   ) {
     this.electronService.on("wago-token-received", () => {
-      console.log('[wago hack] disabling ad panel'); 
+      console.log('[wago hack] disabling ad panel');
       sessionService._adSpaceSrc.next(false);
+      setTimeout(() => {
+        sessionService._adSpaceSrc.next(true);
+      }, 180000);
     });
     this.sessionService.adSpace$.pipe(takeUntil(this.destroy$)).subscribe((enabled) => {
       if (enabled) {
