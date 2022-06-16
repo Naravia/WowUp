@@ -11,7 +11,6 @@ import {
   ALLIANCE_LIGHT_THEME,
   ALLIANCE_THEME,
   APP_PROTOCOL_NAME,
-  CURSE_PROTOCOL_NAME,
   DEFAULT_LIGHT_THEME,
   DEFAULT_THEME,
   HORDE_LIGHT_THEME,
@@ -45,7 +44,6 @@ interface ReleaseChannelViewModel {
   styleUrls: ["./options-app-section.component.scss"],
 })
 export class OptionsAppSectionComponent implements OnInit {
-  public readonly curseProtocolName = CURSE_PROTOCOL_NAME;
   public readonly wowupProtocolName = APP_PROTOCOL_NAME;
 
   public minimizeOnCloseDescription = "";
@@ -92,7 +90,6 @@ export class OptionsAppSectionComponent implements OnInit {
     { value: WowUpReleaseChannelType.Beta, labelKey: "COMMON.ENUM.ADDON_CHANNEL_TYPE.BETA" },
   ];
 
-  public curseforgeProtocolHandled$ = from(this.electronService.isDefaultProtocolClient(CURSE_PROTOCOL_NAME));
   public wowupProtocolHandled$ = from(this.electronService.isDefaultProtocolClient(APP_PROTOCOL_NAME));
 
   private _currentTheme: string;
@@ -119,6 +116,7 @@ export class OptionsAppSectionComponent implements OnInit {
   public startWithSystem$ = new BehaviorSubject(false);
   public startMinimized$ = new BehaviorSubject(false);
   public currentReleaseChannel$ = new BehaviorSubject(WowUpReleaseChannelType.Stable);
+  public keepAddonDetailTab$ = new BehaviorSubject(false);
 
   public constructor(
     private _analyticsService: AnalyticsService,
@@ -219,6 +217,13 @@ export class OptionsAppSectionComponent implements OnInit {
       })
       .catch(console.error);
 
+    this.wowupService
+      .getKeepLastAddonDetailTab()
+      .then((enabled) => {
+        this.keepAddonDetailTab$.next(enabled);
+      })
+      .catch(console.error);
+
     this.initScale().catch((e) => console.error(e));
 
     this._zoomService.zoomFactor$.subscribe((zoomFactor) => {
@@ -280,6 +285,11 @@ export class OptionsAppSectionComponent implements OnInit {
   public onStartMinimizedChange = async (evt: MatSlideToggleChange): Promise<void> => {
     await this.wowupService.setStartMinimized(evt.checked);
     this.startMinimized$.next(evt.checked);
+  };
+
+  public onKeepAddonDetailTabChange = async (evt: MatSlideToggleChange): Promise<void> => {
+    await this.wowupService.setKeepLastAddonDetailTab(evt.checked);
+    this.keepAddonDetailTab$.next(evt.checked);
   };
 
   public onProtocolHandlerChange = (evt: MatSlideToggleChange, protocol: string): void => {

@@ -16,14 +16,64 @@ export class PatchNotesService {
 
 const CHANGELOGS: ChangeLog[] = [
   {
-    Version: "2.7.0",
+    Version: "2.8.2",
+    html: `
+    <h4 style="margin-top: 1em;">New Features</h4>
+    <ul>
+    <li>App bundle now much smaller (CyanoHao)</li>
+    <li>GitHub personal access tokens now supported</li>
+    </ul>
+    <h4 style="margin-top: 1em;">Changes</h4>
+    <ul>
+    <li>Curse addon provider removed</li>
+    <li>CurseV2 addon provider removed</li>
+    <li>GitHub update check should now attempt to use release.json</li>
+    <li>GitHub should now respect release channels better</li>
+    <li>Spanish locale updates (SkollVargr)</li>
+    <li>Polish locale updates (nydas3k)</li>
+    <li>Chinese locale updates (CyanoHao)</li>
+    <li>German locale updates (Glow)</li>
+    </ul>
+    <h4 style="margin-top: 1em;">Fixes</h4>
+    <ul>
+    <li>Fix some text wrapping issues on the addon context menu</li>
+    <li>Fix an issue with some GitHub repos</li>
+    <li>Add a confirmation prompt every time Wago is enabled</li>
+    </ul>
+    `,
+  },
+  {
+    Version: "2.7.1",
     html: `
     <h2 class="text-warning">Important CurseForge Changes</h2>
     <p>
     CurseForge will soon end the ability for WowUp to show or update their addons.<br>
-    In order to continue using CurseForge you will need to be granted a key by them.<br>
-    <a href="https://support.curseforge.com/en/support/solutions/articles/9000208346-about-the-curseforge-api-and-how-to-apply-for-a-key">Read more here</a>
+    Read more about how to migrate your addons as best we can on our website.<br>
+    <a href="https://wowup.io/guide/wowup/curseforge-migration">Read more here</a>
     </p>
+    <h4 style="margin-top: 1em;">New Features</h4>
+    <ul>
+    <li>New Application option to remember the last selected details tab or not. (EpicDenmos)</li>
+    </ul>
+    <h4 style="margin-top: 1em;">Changes</h4>
+    <ul>
+    <li>German locale updates (Glow)</li>
+    <li>Russian locale updates (Medok, Valdemar)</li>
+    <li>Spanish locale updates (SkollVargr)</li>
+    <li>Chinese locale updates (CyanoHao)</li>
+    <li>Polish locale updates (nydas3k)</li>
+    </ul>
+    <h4 style="margin-top: 1em;">Fixes</h4>
+    <ul>
+    <li>Get Addons search text now behaves in a more normal feeling way</li>
+    <li>CurseForge V2 is now disabled by default</li>
+    <li>Addon details install button now shows unavailable when addon is blocked</li>
+    <li>Wago ad frame has a progressive backoff for error catching</li>
+    </ul>`,
+  },
+  {
+    Version: "2.7.0",
+    html: `
     <h4 style="margin-top: 1em;">New Features</h4>
     <ul>
     <li>New Polish language support (nydas3k)</li>

@@ -3,7 +3,7 @@ import { firstValueFrom, from, mergeMap, Observable, toArray } from "rxjs";
 
 import { HttpClient, HttpErrorResponse, HttpHeaders } from "@angular/common/http";
 
-import { ADDON_PROVIDER_GITHUB } from "../../common/constants";
+import { ADDON_PROVIDER_GITHUB, PREF_GITHUB_PERSONAL_ACCESS_TOKEN } from "../../common/constants";
 import {
   AssetMissingError,
   BurningCrusadeAssetMissingError,
@@ -25,8 +25,8 @@ import { AddonProvider, GetAllResult, SearchByUrlResult } from "./addon-provider
 import { WowInstallation } from "../../common/warcraft/wow-installation";
 import { convertMarkdown } from "../utils/markdown.utlils";
 import { strictFilterBy } from "../utils/array.utils";
-import { WarcraftService } from "../services/warcraft/warcraft.service";
 import { getWowClientGroup } from "../../common/warcraft";
+import { SensitiveStorageService } from "../services/storage/sensitive-storage.service";
 
 type MetadataFlavor = "bcc" | "classic" | "mainline";
 
@@ -70,7 +70,7 @@ export class GitHubAddonProvider extends AddonProvider {
   public readonly allowReScan = false;
   public enabled = true;
 
-  public constructor(private _httpClient: HttpClient, private _warcraftService: WarcraftService) {
+  public constructor(private _httpClient: HttpClient, private _sensitiveStorageService: SensitiveStorageService) {
     super();
   }
 
@@ -100,7 +100,7 @@ export class GitHubAddonProvider extends AddonProvider {
     };
 
     try {
-      result.searchResult = await this.getByIdAsync(addonId, installation.clientType);
+      result.searchResult = await this.getByIdAsync(addonId, installation);
     } catch (e) {
       // If we're at the limit, just give up the loop
       if (e instanceof GitHubLimitError) {
@@ -132,8 +132,16 @@ export class GitHubAddonProvider extends AddonProvider {
 
     try {
       const results = await this.getReleases(repoPath);
-      const result = await this.getLatestValidAsset(results, installation.clientType);
-      console.log("result", result);
+
+      const prereleaseRes = results.filter((res) => res.prerelease);
+      const stableRes = results.filter((res) => !res.prerelease);
+      let checkRes = stableRes.length === 0 ? prereleaseRes : stableRes;
+      if (installation.defaultAddonChannelType !== AddonChannelType.Stable) {
+        checkRes = results;
+      }
+
+      const result = await this.getLatestValidAsset(checkRes, installation.clientType);
+      console.log("searchByUrl result", result);
       if (!result.matchedAsset && !result.latestAsset) {
         if (WowClientGroup.Classic === clientGroup) {
           throw new ClassicAssetMissingError(addonUri.toString());
@@ -189,26 +197,28 @@ export class GitHubAddonProvider extends AddonProvider {
   }
 
   public getById(addonId: string, installation: WowInstallation): Observable<AddonSearchResult | undefined> {
-    return from(this.getByIdAsync(addonId, installation.clientType));
+    return from(this.getByIdAsync(addonId, installation));
   }
 
-  private async getByIdAsync(addonId: string, clientType: WowClientType) {
+  private async getByIdAsync(addonId: string, installation: WowInstallation) {
     const repository = await this.getRepository(addonId);
     const releases = await this.getReleases(addonId);
     if (!releases?.length) {
       return undefined;
     }
 
-    const latestRelease = this.getLatestRelease(releases);
-    if (!latestRelease) {
-      return undefined;
+    const prereleaseRes = releases.filter((res) => res.prerelease);
+    const stableRes = releases.filter((res) => !res.prerelease);
+    let checkRes = stableRes.length === 0 ? prereleaseRes : stableRes;
+    if (installation.defaultAddonChannelType !== AddonChannelType.Stable) {
+      checkRes = releases;
     }
-    console.debug("latestRelease", latestRelease);
 
-    const assetResult = await this.getLatestValidAsset([latestRelease], clientType);
+    const assetResult = await this.getLatestValidAsset(checkRes, installation.clientType);
     if (!assetResult.matchedAsset && !assetResult.latestAsset) {
       return undefined;
     }
+    console.debug("assetResult", assetResult);
 
     const author = repository.owner.login;
     const authorImageUrl = repository.owner.avatar_url;
@@ -223,7 +233,7 @@ export class GitHubAddonProvider extends AddonProvider {
       gameVersion: "",
       version: asset.name,
       releaseDate: new Date(asset.created_at),
-      changelog: convertMarkdown(latestRelease.body),
+      changelog: convertMarkdown(assetResult.release.body),
     };
 
     const searchResult: AddonSearchResult = {
@@ -257,11 +267,10 @@ export class GitHubAddonProvider extends AddonProvider {
     sortedReleases = _.take(sortedReleases, 5);
 
     let validAsset: GitHubAsset | undefined = undefined;
-    let sortedAssets: GitHubAsset[] = [];
-    let latestRelease: GitHubRelease = undefined;
+    let latestRelease: GitHubRelease = _.first(sortedReleases);
+    let latestAsset = this.getValidAssetForAny(latestRelease);
 
     for (const release of sortedReleases) {
-      sortedAssets = this.getSortedAssets(release);
       let iAsset: GitHubAsset | undefined = undefined;
       if (this.hasReleaseMetadata(release)) {
         console.log(`Checking release metadata: ${release.name}`);
@@ -277,6 +286,7 @@ export class GitHubAddonProvider extends AddonProvider {
       if (iAsset) {
         validAsset = iAsset;
         latestRelease = release;
+        latestAsset = this.getValidAssetForAny(latestRelease);
         break;
       }
     }
@@ -284,7 +294,7 @@ export class GitHubAddonProvider extends AddonProvider {
     return {
       matchedAsset: validAsset,
       release: latestRelease,
-      latestAsset: sortedAssets[0],
+      latestAsset: latestAsset,
     };
   }
 
@@ -364,7 +374,12 @@ export class GitHubAddonProvider extends AddonProvider {
       (asset) => this.isNotNoLib(asset) && this.isValidContentType(asset) && this.isValidClientType(clientType, asset)
     );
 
-    return sortedAssets[0];
+    return _.first(sortedAssets);
+  }
+
+  private getValidAssetForAny(release: GitHubRelease): GitHubAsset | undefined {
+    const sortedAssets = _.filter(release.assets, (asset) => this.isNotNoLib(asset) && this.isValidContentType(asset));
+    return _.first(sortedAssets);
   }
 
   private getSortedAssets(release: GitHubRelease): GitHubAsset[] {
@@ -485,7 +500,14 @@ export class GitHubAddonProvider extends AddonProvider {
 
   private async getWithRateLimit<T>(url: URL | string): Promise<T> {
     try {
-      return await this._httpClient.get<T>(url.toString()).toPromise();
+      const personalAccessToken = await this._sensitiveStorageService.getAsync(PREF_GITHUB_PERSONAL_ACCESS_TOKEN);
+      const headers: any = {};
+
+      if (personalAccessToken) {
+        headers.Authorization = `token ${personalAccessToken}`;
+      }
+
+      return await firstValueFrom(this._httpClient.get<T>(url.toString(), { headers }));
     } catch (e) {
       if (e instanceof HttpErrorResponse) {
         this.handleRateLimitError(e);

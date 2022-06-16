@@ -159,10 +159,6 @@ if (app.isReady()) {
     // setTimeout(() => {
     createWindow();
     // }, 400);
-
-    // Preload native lib
-    const nativeAddon = require("../build/Release/addon.node");
-    nativeAddon.hello();
   });
 }
 
@@ -260,7 +256,6 @@ function createWindow(): BrowserWindow {
       contextIsolation: false,
       allowRunningInsecureContent: argv.serve,
       webSecurity: false,
-      nativeWindowOpen: true,
       additionalArguments: [
         `--log-path=${LOG_PATH}`,
         `--user-data-path=${app.getPath("userData")}`,
@@ -310,11 +305,20 @@ function createWindow(): BrowserWindow {
 
     webPreferences.additionalArguments = [`--log-path=${LOG_PATH}`];
     webPreferences.contextIsolation = true;
-    webPreferences.nativeWindowOpen = false; // Without this the new-window event does not fire
+    webPreferences.plugins = false;
+    webPreferences.webgl = false;
   });
 
   win.webContents.on("did-attach-webview", (evt, webContents) => {
     webContents.session.setUserAgent(webContents.userAgent);
+
+    webContents.on("preload-error", (evt) => {
+      log.error("[webview] preload-error", evt);
+    });
+
+    webContents.on("did-fail-provisional-load", (evt) => {
+      log.error("[webview] did-fail-provisional-load", evt);
+    });
 
     webContents.session.setPermissionRequestHandler((contents, permission, callback) => {
       log.warn("setPermissionRequestHandler", permission);
@@ -332,7 +336,10 @@ function createWindow(): BrowserWindow {
 
     webContents.on("did-fail-load", (evt, code, desc, url) => {
       log.error("[webview] did-fail-load", code, desc, url);
-      setTimeout(() => webContents.reload(), 2000);
+      setTimeout(() => {
+        log.error("[webview] reload");
+        webContents.reload();
+      }, 2000);
     });
 
     webContents.on("will-navigate", (evt, url) => {
@@ -344,8 +351,10 @@ function createWindow(): BrowserWindow {
       }
     });
 
+    // webview allowpopups must be enabled for any link to work
+    // https://www.electronjs.org/docs/latest/api/webview-tag#allowpopups
     webContents.setWindowOpenHandler((details) => {
-      log.debug("[webview] new-window");
+      log.debug("[webview] setWindowOpenHandler");
       win.webContents.send("webview-new-window", details); // forward this new window to the app for processing
       return { action: "deny" };
     });

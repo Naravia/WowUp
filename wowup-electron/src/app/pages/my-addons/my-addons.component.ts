@@ -13,7 +13,17 @@ import {
 import * as _ from "lodash";
 import { join } from "path";
 import { BehaviorSubject, combineLatest, from, fromEvent, Observable, of, Subject, Subscription, zip } from "rxjs";
-import { catchError, debounceTime, distinctUntilChanged, filter, first, map, switchMap, tap } from "rxjs/operators";
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  first,
+  map,
+  switchMap,
+  takeUntil,
+  tap,
+} from "rxjs/operators";
 
 import { Overlay, OverlayRef } from "@angular/cdk/overlay";
 import {
@@ -39,7 +49,7 @@ import { AddonViewModel } from "../../business-objects/addon-view-model";
 import { CellWrapTextComponent } from "../../components/common/cell-wrap-text/cell-wrap-text.component";
 import { ConfirmDialogComponent } from "../../components/common/confirm-dialog/confirm-dialog.component";
 import { DateTooltipCellComponent } from "../../components/addons/date-tooltip-cell/date-tooltip-cell.component";
-import { MyAddonStatusColumnComponent } from "../../components/addons/my-addon-status-column/my-addon-status-column.component";
+import { MyAddonStatusCellComponent } from "../../components/addons/my-addon-status-cell/my-addon-status-cell.component";
 import { MyAddonsAddonCellComponent } from "../../components/addons/my-addons-addon-cell/my-addons-addon-cell.component";
 import { TableContextHeaderCellComponent } from "../../components/addons/table-context-header-cell/table-context-header-cell.component";
 import { AddonInstallState } from "../../models/wowup/addon-install-state";
@@ -89,6 +99,7 @@ export class MyAddonsComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly _filterInputSrc = new BehaviorSubject<string>("");
   private readonly _spinnerMessageSrc = new BehaviorSubject<string>("");
   private readonly _totalAvailableUpdateSrc = new BehaviorSubject<number>(0);
+  private readonly _destroy$ = new Subject<boolean>();
 
   public readonly totalAvailableUpdateCt$ = this._totalAvailableUpdateSrc.asObservable();
   public readonly enableControls$ = this._sessionService.enableControls$;
@@ -270,6 +281,17 @@ export class MyAddonsComponent implements OnInit, OnDestroy, AfterViewInit {
       _addonService.anyUpdatesAvailable$,
     ]).pipe(switchMap(([installations]) => from(this.mapInstallations(installations))));
 
+    this._sessionService.rescanComplete$
+      .pipe(
+        takeUntil(this._destroy$),
+        switchMap(() => from(this.onRefresh())),
+        catchError((err) => {
+          console.error(err);
+          return of(undefined);
+        })
+      )
+      .subscribe();
+
     const addonInstalledSub = this._addonService.addonInstalled$
       .pipe(
         map((evt) => this.onAddonInstalledEvent(evt)),
@@ -313,7 +335,7 @@ export class MyAddonsComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.frameworkComponents = {
       myAddonRenderer: MyAddonsAddonCellComponent,
-      myAddonStatus: MyAddonStatusColumnComponent,
+      myAddonStatus: MyAddonStatusCellComponent,
       contextHeader: TableContextHeaderCellComponent,
       wrapTextCell: CellWrapTextComponent,
       dateTooltipCell: DateTooltipCellComponent,
@@ -359,6 +381,8 @@ export class MyAddonsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public ngOnDestroy(): void {
+    this._destroy$.next(true);
+    this._destroy$.complete();
     this._subscriptions.forEach((sub) => sub.unsubscribe());
   }
 
@@ -696,7 +720,7 @@ export class MyAddonsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
   public getRowNodeId = (data: any) => {
-    return data.addon.id;
+    return data.data.addon.id;
   };
 
   public onClickCreateBackup(): void {

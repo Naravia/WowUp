@@ -23,6 +23,7 @@ import {
   IPC_APP_INSTALL_UPDATE,
   IPC_GET_APP_VERSION,
   IPC_UPDATE_APP_BADGE,
+  KEEP_ADDON_DETAIL_TAB_PREFERENCE_KEY,
   MY_ADDONS_HIDDEN_COLUMNS_KEY,
   MY_ADDONS_SORT_ORDER,
   SELECTED_LANGUAGE_PREFERENCE_KEY,
@@ -45,6 +46,7 @@ import { ElectronService } from "../electron/electron.service";
 import { FileService } from "../files/file.service";
 import { PreferenceStorageService } from "../storage/preference-storage.service";
 import { WowUpReleaseChannelType } from "../../../common/wowup/wowup-release-channel-type";
+import { AddonProviderType } from "../../addon-providers/addon-provider";
 
 @Injectable({
   providedIn: "root",
@@ -213,6 +215,17 @@ export class WowUpService {
     }
   }
 
+  public async getKeepLastAddonDetailTab(): Promise<boolean> {
+    const preference = await this._preferenceStorageService.getAsync(KEEP_ADDON_DETAIL_TAB_PREFERENCE_KEY);
+    return preference === "true";
+  }
+
+  public async setKeepLastAddonDetailTab(value: boolean): Promise<void> {
+    const key = KEEP_ADDON_DETAIL_TAB_PREFERENCE_KEY;
+    await this._preferenceStorageService.setAsync(key, value);
+    this._preferenceChangeSrc.next({ key, value: value.toString() });
+  }
+
   public async getAddonProviderStates(): Promise<AddonProviderState[]> {
     const obj = await this._preferenceStorageService.getObjectAsync<AddonProviderState[]>(ADDON_PROVIDERS_KEY);
     return obj || [];
@@ -226,7 +239,7 @@ export class WowUpService {
   public async setAddonProviderState(state: AddonProviderState): Promise<void> {
     const key = ADDON_PROVIDERS_KEY;
     const stateCpy = { ...state };
-    stateCpy.providerName = stateCpy.providerName.toLowerCase();
+    stateCpy.providerName = stateCpy.providerName.toLowerCase() as AddonProviderType;
 
     const preference = await this.getAddonProviderStates();
     const stateIndex = _.findIndex(preference, (pref) => pref.providerName === stateCpy.providerName);

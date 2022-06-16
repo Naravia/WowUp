@@ -24,6 +24,7 @@ import { PreferenceStorageService } from "../storage/preference-storage.service"
 import { CurseAddonV2Provider } from "../../addon-providers/curse-addon-v2-provider";
 import { CurseAddonProvider } from "../../addon-providers/curse-addon-provider";
 import { SensitiveStorageService } from "../storage/sensitive-storage.service";
+import { UiMessageService } from "../ui-message/ui-message.service";
 
 @Injectable({
   providedIn: "root",
@@ -47,6 +48,7 @@ export class AddonProviderFactory {
     private _wowupApiService: WowUpApiService,
     private _preferenceStorageService: PreferenceStorageService,
     private _sensitiveStorageService: SensitiveStorageService,
+    private _uiMessageService: UiMessageService
   ) {}
 
   /** This is part of the APP_INITIALIZER and called before the app is bootstrapped */
@@ -60,8 +62,8 @@ export class AddonProviderFactory {
       this.createWowUpCompanionAddonProvider(),
       this.createWowUpAddonProvider(),
       this.createWagoAddonProvider(),
-      this.createCurseAddonProvider(),
-      this.createCurseV2AddonProvider(),
+      // this.createCurseAddonProvider(),
+      // this.createCurseV2AddonProvider(),
       this.createTukUiAddonProvider(),
       this.createWowInterfaceAddonProvider(),
       this.createGitHubAddonProvider(),
@@ -107,6 +109,7 @@ export class AddonProviderFactory {
       this._cachingService,
       this._warcraftService,
       this._tocService,
+      this._uiMessageService,
       this._networkService
     );
   }
@@ -150,7 +153,7 @@ export class AddonProviderFactory {
   }
 
   public createGitHubAddonProvider(): GitHubAddonProvider {
-    return new GitHubAddonProvider(this._httpClient, this._warcraftService);
+    return new GitHubAddonProvider(this._httpClient, this._sensitiveStorageService);
   }
 
   public createWowUpAddonProvider(): WowUpAddonProvider {

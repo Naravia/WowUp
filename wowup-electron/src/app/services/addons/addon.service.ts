@@ -61,7 +61,6 @@ import { WarcraftInstallationService } from "../warcraft/warcraft-installation.s
 import { WarcraftService } from "../warcraft/warcraft.service";
 import { WowUpService } from "../wowup/wowup.service";
 import { AddonProviderFactory } from "./addon.provider.factory";
-import { CurseAddonV2Provider } from "../../addon-providers/curse-addon-v2-provider";
 import { AddonFingerprintService } from "./addon-fingerprint.service";
 
 export enum ScanUpdateType {
@@ -788,7 +787,6 @@ export class AddonService {
   };
 
   public async logDebugData(): Promise<void> {
-    const curseProvider = this._addonProviderService.getProvider<CurseAddonV2Provider>(ADDON_PROVIDER_CURSEFORGE);
     const hubProvider = this._addonProviderService.getProvider<WowUpAddonProvider>(ADDON_PROVIDER_HUB);
 
     const clientMap = {};
@@ -799,16 +797,11 @@ export class AddonService {
       const useSymlinkMode = await this._wowUpService.getUseSymlinkMode();
       const addonFolders = await this._warcraftService.listAddons(installation, useSymlinkMode);
 
-      const curseMap = {};
-      const curseScanResults = curseProvider.getScanResults(addonFolders);
-      curseScanResults.forEach((sr) => (curseMap[sr.folderName] = sr.fingerprint));
-
       const hubMap = {};
       const hubScanResults = await hubProvider.getScanResults(addonFolders);
       hubScanResults.forEach((sr) => (hubMap[sr.folderName] = sr.fingerprint));
 
       clientMap[clientTypeName] = {
-        curse: curseMap,
         hub: hubMap,
       };
 
@@ -1083,6 +1076,14 @@ export class AddonService {
     return addons;
   }
 
+  public async getProviderAddons(providerName: string): Promise<Addon[]> {
+    if (!providerName) {
+      return [];
+    }
+
+    return await this._addonStorage.getAllForProviderAsync(providerName);
+  }
+
   public async getAddons(installation: WowInstallation, rescan = false): Promise<Addon[]> {
     if (!installation) {
       return [];
@@ -1312,6 +1313,10 @@ export class AddonService {
         // Check for a new download URL
         if (latestFile?.downloadUrl && latestFile.downloadUrl !== addon.downloadUrl) {
           addon.downloadUrl = latestFile.downloadUrl || addon.downloadUrl;
+        }
+
+        if (Array.isArray(result.fundingLinks)) {
+          addon.fundingLinks = result.fundingLinks;
         }
 
         // If the release ID hasn't changed we don't really need to update the whole record

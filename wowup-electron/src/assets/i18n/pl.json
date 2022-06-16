@@ -118,7 +118,7 @@
   "COMMON": {
     "ADDON_CATEGORIES": {
       "ACHIEVEMENTS": "Osiągnięcia",
-      "ACTION_BARS": "Paski umięjętności",
+      "ACTION_BARS": "Paski umiejętności",
       "ALL_ADDONS": "Wszystkie addony",
       "AUCTION_ECONOMY": "Aukcja & Ekonomia",
       "BAGS_INVENTORY": "Plecak & Ekwipunek",
@@ -174,8 +174,8 @@
       "MISSING_ON_PROVIDER_TOOLTIP": "{providerName} nie zwraca tego dodatku zgodnie z oczekiwaniami",
       "NO_PROVIDER_FILES_DESCRIPTION": "{providerName} prawidłowo zwrócił ten addon, lecz nie ma żadnych pasujących plików do tej wersji.<br>Kiedy będzie aktualizacja wspierająca tę wersje, komunikat powienien zniknąć.",
       "NO_PROVIDER_FILES_TOOLTIP": "{providerName} nie ma żadnych pasujących plików dla tej wersji gry",
-      "TOC_NAME_MISMATCH_DESCRIPTION": "This addon's folder name did not match with the expected toc file, you may experience issues with this addon in-game.",
-      "TOC_NAME_MISMATCH_TOOLTIP": "This addon's folder does not match the toc"
+      "TOC_NAME_MISMATCH_DESCRIPTION": "Nazwa folderu tego addonu nie jest zgodna z oczekiwanym plikiem toc, w związku z czym mogą wystąpić problemy z tym addonem w grze.",
+      "TOC_NAME_MISMATCH_TOOLTIP": "Folder tego addonu nie jest zgodny z toc"
     },
     "CLIENT_TYPES": {
       "BETA": "Beta",
@@ -261,6 +261,14 @@
     "CONFIRM": {
       "NEGATIVE_BUTTON": "Nie",
       "POSITIVE_BUTTON": "Tak"
+    },
+    "CURSE_MIGRATION": {
+      "MESSAGE": "API CurseForge zostało wyłączone, więc WowUp nie może już pobierać z niego informacji o addonach.<br/>Niestety, oznacza to, że dostawca CurseForge został usunięty, a Twoje addony z CurseForge nie będą już aktualizowane.<br/>Zaleca się przeprowadzenie ponownego skanowania w celu sprawdzenia, jakie addony można znaleźć u innych dostawców.<br/>Proces ponownego skanowania może chwilę potrwać.<br/><a appExternalLink href=\"https://wowup.io/guide/wowup/curseforge-migration\">Przeczytaj więcej tutaj.</a>",
+      "NEGATIVE_BUTTON": "Ponowne skanowanie ręczne",
+      "POSITIVE_BUTTON": "Ponowne skanowanie automatyczne",
+      "RE_SCAN_ERROR": "Ponowne skanowanie automatyczne nie powiodło się, spróbuj ponownie ręcznie.",
+      "RE_SCAN_SUCCESS": "Skończone ponowne skanowanie automatyczne, można przystąpić do pracy.",
+      "TITLE": "Migracja CurseForge"
     },
     "INSTALL_FROM_PROTOCOL": {
       "ADDON_INSTALLED": "Addon zainstalowany!",
@@ -485,6 +493,11 @@
           "FIELD_LABEL": "Włączone addony dostawców",
           "INPUT_LABEL": "Dostawcy"
         },
+        "GITHUB_PERSONAL_ACCESS_TOKEN": {
+          "MESSAGE": "Osobisty token dostępu zwiększy liczbę wywołań API GitHuba, które możesz swobodnie wykonywać. <a href=\"https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token\">Dowiedz się więcej</a>",
+          "PLACEHOLDER": "Osobisty token dostępu",
+          "TITLE": "Osobisty token dostępu do GitHuba"
+        },
         "TITLE": "Addony"
       },
       "APPLICATION": {
@@ -502,6 +515,8 @@
         "ENABLE_APP_BADGE_LABEL": "Włącz powiadamianie o odznakach aplikacji",
         "ENABLE_SYSTEM_NOTIFICATIONS_DESCRIPTION": "Włącz różne wyskakujące okienka powiadomień, np. o automatycznie aktualizowanych addonach.",
         "ENABLE_SYSTEM_NOTIFICATIONS_LABEL": "Włącz powiadomienia systemowe",
+        "KEEP_LAST_OPENED_TAB_DESCRIPTION": "Podczas otwierania strony szczegółów addonu, automatycznie wybieraj ostatnio otwartą kartę",
+        "KEEP_LAST_OPENED_TAB_LABEL": "Zachowaj ostatnio otwartą kartę",
         "MINIMIZE_ON_CLOSE_DESCRIPTION_MAC": "Zamykając okno WowUp, zminimalizuj je do paska menu.",
         "MINIMIZE_ON_CLOSE_DESCRIPTION_WINDOWS": "Podczas zamykania okna WowUp zminimalizuj je do obszaru powiadomień paska zadań.",
         "MINIMIZE_ON_CLOSE_LABEL": "Zminimalizuj przy zamykaniu",

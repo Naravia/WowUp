@@ -17,7 +17,6 @@ export const ADDON_PROVIDER_WOWUP_COMPANION = "WowUpCompanion";
 export const ADDON_PROVIDER_ZIP = "Zip";
 
 export const APP_PROTOCOL_NAME = "wowup";
-export const CURSE_PROTOCOL_NAME = "curseforge";
 
 // WOWUP ADDON
 export const WOWUP_ADDON_FOLDER_NAME = "WowUp";
@@ -39,9 +38,7 @@ export const IPC_READ_FILE_BUFFER_CHANNEL = "read-file-buffer";
 export const IPC_WRITE_FILE_CHANNEL = "write-file";
 export const IPC_UNZIP_FILE_CHANNEL = "unzip-file";
 export const IPC_COPY_FILE_CHANNEL = "copy-file";
-export const IPC_CURSE_HASH_FILE_CHANNEL = "curse-hash-file";
 export const IPC_SHOW_DIRECTORY = "show-directory";
-export const IPC_CURSE_GET_SCAN_RESULTS = "curse-get-scan-results";
 export const IPC_WOWUP_GET_SCAN_RESULTS = "wowup-get-scan-results";
 export const IPC_GET_HOME_DIR = "get-home-dir";
 export const IPC_GET_ASSET_FILE_PATH = "get-asset-file-path";
@@ -124,6 +121,7 @@ export const USE_SYMLINK_MODE_PREFERENCE_KEY = "use_symlink_mode";
 export const START_WITH_SYSTEM_PREFERENCE_KEY = "start_with_system";
 export const START_MINIMIZED_PREFERENCE_KEY = "start_minimized";
 export const SELECTED_LANGUAGE_PREFERENCE_KEY = "selected_language";
+export const KEEP_ADDON_DETAIL_TAB_PREFERENCE_KEY = "keep_addon_detail_tab";
 export const MY_ADDONS_HIDDEN_COLUMNS_KEY = "my_addons_hidden_columns";
 export const MY_ADDONS_SORT_ORDER = "my_addons_sort_order";
 export const GET_ADDONS_HIDDEN_COLUMNS_KEY = "get_addons_hidden_columns";
@@ -148,6 +146,7 @@ export const ACCT_PUSH_ENABLED_KEY = "acct_push_enabled";
 export const WAGO_PROMPT_KEY = "wago_prompt";
 export const PREF_TABS_COLLAPSED = "tabs_collapsed";
 export const PREF_CF2_API_KEY = "cf2_api_key";
+export const PREF_GITHUB_PERSONAL_ACCESS_TOKEN = "github_personal_access_token";
 
 export const ACCT_FEATURE_KEYS = [ACCT_PUSH_ENABLED_KEY];
 
@@ -175,7 +174,15 @@ export const MIN_VISIBLE_ON_SCREEN = 32;
 export const WOWUP_LOGO_FILENAME = "wowup_logo_purple.png";
 export const WOWUP_LOGO_MAC_SYSTEM_TRAY = "wowupBlackLgNopadTemplate.png";
 export const DEFAULT_FILE_MODE = 0o655;
-export const DEFAULT_TRUSTED_DOMAINS = ["wowup.io", "dev.wowup.io", "discord.gg", "www.patreon.com", "github.com", "wago.io", "addons.wago.io"];
+export const DEFAULT_TRUSTED_DOMAINS = [
+  "wowup.io",
+  "dev.wowup.io",
+  "discord.gg",
+  "www.patreon.com",
+  "github.com",
+  "wago.io",
+  "addons.wago.io",
+];
 export const WOW_CLASSIC_FOLDER = "_classic_";
 export const WOW_CLASSIC_ERA_FOLDER = "_classic_era_";
 export const WOW_RETAIL_FOLDER = "_retail_";
